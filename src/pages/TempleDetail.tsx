@@ -4,6 +4,7 @@ import { MapPin, Calendar, Clock, Info, Shield, Map, ChevronLeft, Star, ArrowRig
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import type { Temple } from "../types";
+import { TEMPLES_DATA } from "../data/temples";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
 
@@ -14,14 +15,10 @@ export default function TempleDetail() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    fetch("/api/temples")
-      .then((res) => res.json())
-      .then((data) => {
-        const found = data.find((t: Temple) => t.id === id);
-        setTemple(found || null);
-        setIsLoading(false);
-      });
+    // Using hardcoded data for immediate reliability on Vercel
+    const found = TEMPLES_DATA.find((t: Temple) => t.id === id);
+    setTemple(found || null);
+    setIsLoading(false);
   }, [id]);
 
   if (isLoading) {

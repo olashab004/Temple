@@ -4,26 +4,23 @@ import { Search, MapPin, Filter, X, ChevronRight, Star } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import type { Temple } from "../types";
+import { TEMPLES_DATA } from "../data/temples";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
 
 export default function TempleListing() {
-  const [temples, setTemples] = useState<Temple[]>([]);
+  const [temples, setTemples] = useState<Temple[]>(TEMPLES_DATA);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   const query = searchParams.get("q") || "";
   const stateFilter = searchParams.get("state") || "";
   const deityFilter = searchParams.get("deity") || "";
 
   useEffect(() => {
-    setIsLoading(true);
-    fetch("/api/temples")
-      .then((res) => res.json())
-      .then((data) => {
-        setTemples(data);
-        setIsLoading(false);
-      });
+    // Using hardcoded data for immediate reliability on Vercel
+    setTemples(TEMPLES_DATA);
+    setIsLoading(false);
   }, []);
 
   const filteredTemples = useMemo(() => {

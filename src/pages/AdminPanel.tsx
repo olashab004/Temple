@@ -3,14 +3,15 @@ import { Plus, Trash2, Edit2, ShieldCheck, Save, X, Info, MapPin, Star } from "l
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import type { Temple } from "../types";
+import { TEMPLES_DATA } from "../data/temples";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
 
 export default function AdminPanel() {
-  const [temples, setTemples] = useState<Temple[]>([]);
+  const [temples, setTemples] = useState<Temple[]>(TEMPLES_DATA);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [newTemple, setNewTemple] = useState<Partial<Temple>>({
     name: "",
     location: { state: "", city: "" },
@@ -25,49 +26,26 @@ export default function AdminPanel() {
   });
 
   useEffect(() => {
-    fetchTemples();
+    // Using hardcoded data for immediate reliability on Vercel
+    setTemples(TEMPLES_DATA);
+    setIsLoading(false);
   }, []);
 
   const fetchTemples = () => {
-    setIsLoading(true);
-    fetch("/api/temples")
-      .then((res) => res.json())
-      .then((data) => {
-        setTemples(data);
-        setIsLoading(false);
-      });
+    setTemples(TEMPLES_DATA);
+    setIsLoading(false);
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const url = editingId ? `/api/temples/${editingId}` : "/api/temples";
-      const method = editingId ? "PUT" : "POST";
-      
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newTemple),
-      });
-      if (res.ok) {
-        setIsAdding(false);
-        setEditingId(null);
-        fetchTemples();
-        resetForm();
-      }
-    } catch (error) {
-      console.error("Failed to save temple", error);
-    }
+    alert("Data persistence is disabled in hardcoded mode. Changes will not be saved to the server.");
+    setIsAdding(false);
+    setEditingId(null);
+    resetForm();
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this temple?")) return;
-    try {
-      const res = await fetch(`/api/temples/${id}`, { method: "DELETE" });
-      if (res.ok) fetchTemples();
-    } catch (error) {
-      console.error("Failed to delete temple", error);
-    }
+    alert("Data persistence is disabled in hardcoded mode. Changes will not be saved to the server.");
   };
 
   const handleEdit = (temple: Temple) => {
