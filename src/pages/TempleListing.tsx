@@ -4,12 +4,12 @@ import { Search, MapPin, Filter, X, ChevronRight, Star } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import type { Temple } from "../types";
-import { TEMPLES_DATA } from "../data/temples";
+import { getTemples } from "../lib/templeStore";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
 
 export default function TempleListing() {
-  const [temples, setTemples] = useState<Temple[]>(TEMPLES_DATA);
+  const [temples, setTemples] = useState<Temple[]>(getTemples());
   const [searchParams, setSearchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -18,19 +18,16 @@ export default function TempleListing() {
   const deityFilter = searchParams.get("deity") || "";
 
   useEffect(() => {
-    // Using hardcoded data for immediate reliability on Vercel
-    setTemples(TEMPLES_DATA);
-    setIsLoading(false);
+    // Load from localStorage on mount
+    setTemples(getTemples());
   }, []);
 
   const filteredTemples = useMemo(() => {
     return temples.filter((temple) => {
-      const matchesQuery =
-        temple.name.toLowerCase().includes(query.toLowerCase()) ||
-        temple.location.city.toLowerCase().includes(query.toLowerCase()) ||
-        temple.deity.toLowerCase().includes(query.toLowerCase());
+      const searchStr = `${temple.name} ${temple.location.city} ${temple.location.state} ${temple.deity}`.toLowerCase();
+      const matchesQuery = searchStr.includes(query.toLowerCase());
       const matchesState = !stateFilter || temple.location.state === stateFilter;
-      const matchesDeity = !deityFilter || temple.deity.includes(deityFilter);
+      const matchesDeity = !deityFilter || temple.deity.toLowerCase().includes(deityFilter.toLowerCase());
       return matchesQuery && matchesState && matchesDeity;
     });
   }, [temples, query, stateFilter, deityFilter]);

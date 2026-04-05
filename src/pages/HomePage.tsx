@@ -3,18 +3,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { Search, MapPin, ArrowRight, Star, Calendar, Info } from "lucide-react";
 import { motion } from "motion/react";
 import type { Temple } from "../types";
-import { TEMPLES_DATA } from "../data/temples";
+import { getTemples } from "../lib/templeStore";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
 
 export default function HomePage() {
-  const [temples, setTemples] = useState<Temple[]>(TEMPLES_DATA.slice(0, 3));
+  const [temples, setTemples] = useState<Temple[]>(getTemples().slice(0, 3));
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Using hardcoded data for immediate reliability on Vercel
-    setTemples(TEMPLES_DATA.slice(0, 3));
+    setTemples(getTemples().slice(0, 3));
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {

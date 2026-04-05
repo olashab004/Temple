@@ -3,12 +3,12 @@ import { Plus, Trash2, Edit2, ShieldCheck, Save, X, Info, MapPin, Star } from "l
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import type { Temple } from "../types";
-import { TEMPLES_DATA } from "../data/temples";
+import { getTemples, saveTemples } from "../lib/templeStore";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
 
 export default function AdminPanel() {
-  const [temples, setTemples] = useState<Temple[]>(TEMPLES_DATA);
+  const [temples, setTemples] = useState<Temple[]>(getTemples());
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -22,30 +22,51 @@ export default function AdminPanel() {
     festivals: [],
     dressCode: "",
     nearby: { accommodation: "", transport: "" },
-    image: "https://images.unsplash.com/photo-1590050752117-23a9d7fc91db?w=1200&q=80"
+    image: "https://images.unsplash.com/photo-1590050752117-238cb0fb12b1?w=1200&q=80"
   });
 
   useEffect(() => {
-    // Using hardcoded data for immediate reliability on Vercel
-    setTemples(TEMPLES_DATA);
-    setIsLoading(false);
+    setTemples(getTemples());
   }, []);
 
   const fetchTemples = () => {
-    setTemples(TEMPLES_DATA);
-    setIsLoading(false);
+    setTemples(getTemples());
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Data persistence is disabled in hardcoded mode. Changes will not be saved to the server.");
+    
+    let updatedTemples: Temple[];
+    if (editingId) {
+      updatedTemples = temples.map(t => t.id === editingId ? { ...t, ...newTemple } as Temple : t);
+    } else {
+      const templeToAdd = {
+        ...newTemple,
+        id: Date.now().toString(),
+      } as Temple;
+      updatedTemples = [...temples, templeToAdd];
+    }
+
+    saveTemples(updatedTemples);
+    setTemples(updatedTemples);
     setIsAdding(false);
     setEditingId(null);
     resetForm();
+    alert("Changes saved to local storage! Note: These changes are local to your browser.");
   };
 
   const handleDelete = async (id: string) => {
-    alert("Data persistence is disabled in hardcoded mode. Changes will not be saved to the server.");
+    if (!confirm("Are you sure you want to delete this temple?")) return;
+    const updatedTemples = temples.filter(t => t.id !== id);
+    saveTemples(updatedTemples);
+    setTemples(updatedTemples);
+    alert("Temple deleted from local storage.");
+  };
+
+  const handleReset = () => {
+    if (!confirm("Are you sure you want to reset all data to defaults? This will erase all your local changes.")) return;
+    localStorage.removeItem("temple_heritage_data");
+    window.location.reload();
   };
 
   const handleEdit = (temple: Temple) => {
@@ -83,17 +104,26 @@ export default function AdminPanel() {
             Manage the sacred heritage database. Add new temples, edit existing entries, and maintain data accuracy.
           </p>
         </div>
-        <button
-          onClick={() => {
-            resetForm();
-            setEditingId(null);
-            setIsAdding(true);
-          }}
-          className="relative z-10 flex items-center space-x-2 bg-amber-500 hover:bg-amber-600 text-amber-950 font-bold px-8 py-4 rounded-2xl transition-all shadow-lg hover:shadow-amber-500/20 active:scale-95"
-        >
-          <Plus className="w-5 h-5" />
-          <span>Add New Temple</span>
-        </button>
+        <div className="flex flex-col sm:flex-row gap-4 relative z-10">
+          <button
+            onClick={handleReset}
+            className="flex items-center justify-center space-x-2 bg-amber-800/50 hover:bg-amber-800 text-amber-50 font-bold px-6 py-4 rounded-2xl transition-all border border-amber-700/50"
+          >
+            <X className="w-5 h-5" />
+            <span>Reset to Default</span>
+          </button>
+          <button
+            onClick={() => {
+              resetForm();
+              setEditingId(null);
+              setIsAdding(true);
+            }}
+            className="flex items-center justify-center space-x-2 bg-amber-500 hover:bg-amber-600 text-amber-950 font-bold px-8 py-4 rounded-2xl transition-all shadow-lg hover:shadow-amber-500/20 active:scale-95"
+          >
+            <Plus className="w-5 h-5" />
+            <span>Add New Temple</span>
+          </button>
+        </div>
       </div>
 
       <AnimatePresence>
