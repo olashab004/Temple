@@ -1,41 +1,39 @@
 import { Map, ArrowRight, MapPin, ChevronRight, Star } from "lucide-react";
 import { motion } from "motion/react";
 import { Link } from "react-router-dom";
+import { CIRCUITS } from "../data/circuits";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
 
-const circuits = [
-  {
-    id: "char-dham",
-    name: "Char Dham Yatra",
-    description: "The most sacred pilgrimage circuit in India, covering four holy sites: Badrinath, Dwarka, Puri, and Rameswaram.",
-    duration: "12-15 Days",
-    stops: ["Badrinath", "Dwarka", "Puri", "Rameswaram"],
-    image: "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?w=1200&q=80",
-    difficulty: "Moderate",
-    bestTime: "May to October"
-  },
-  {
-    id: "jyotirlinga",
-    name: "12 Jyotirlinga Circuit",
-    description: "A spiritual journey to the twelve most sacred shrines of Lord Shiva, spread across the length and breadth of India.",
-    duration: "20-25 Days",
-    stops: ["Somnath", "Kashi Vishwanath", "Mahakaleshwar", "Rameshwaram"],
-    image: "https://images.unsplash.com/photo-1590050752117-23a9d7fc91db?w=1200&q=80",
-    difficulty: "Challenging",
-    bestTime: "October to March"
-  },
-  {
-    id: "shakti-peeth",
-    name: "Shakti Peeth Darshan",
-    description: "A pilgrimage to the sacred shrines dedicated to Goddess Shakti, representing the divine feminine energy.",
-    duration: "10-12 Days",
-    stops: ["Kamakhya", "Kanyakumari", "Vaishno Devi", "Amarnath"],
-    image: "https://images.unsplash.com/photo-1591382755255-763488219468?w=1200&q=80",
-    difficulty: "Moderate",
-    bestTime: "September to April"
-  }
-];
+const circuitImages: Record<string, string> = {
+  "char-dham": "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?w=1200&q=80",
+  "jyotirlinga": "https://images.unsplash.com/photo-1590050752117-23a9d7fc91db?w=1200&q=80",
+  "shakti-peeth": "https://images.unsplash.com/photo-1591382755255-763488219468?w=1200&q=80"
+};
+
+const circuitDescriptions: Record<string, string> = {
+  "char-dham": "The most sacred pilgrimage circuit in India, covering four holy sites: Badrinath, Dwarka, Puri, and Rameswaram.",
+  "jyotirlinga": "A spiritual journey to the twelve most sacred shrines of Lord Shiva, spread across the length and breadth of India.",
+  "shakti-peeth": "A pilgrimage to the sacred shrines dedicated to Goddess Shakti, representing the divine feminine energy."
+};
+
+const circuitDurations: Record<string, string> = {
+  "char-dham": "12-15 Days",
+  "jyotirlinga": "20-25 Days",
+  "shakti-peeth": "10-12 Days"
+};
+
+const circuitDifficulties: Record<string, string> = {
+  "char-dham": "Moderate",
+  "jyotirlinga": "Challenging",
+  "shakti-peeth": "Moderate"
+};
+
+const circuitBestTimes: Record<string, string> = {
+  "char-dham": "May to October",
+  "jyotirlinga": "October to March",
+  "shakti-peeth": "September to April"
+};
 
 export default function Circuits() {
   return (
@@ -48,7 +46,7 @@ export default function Circuits() {
       </div>
 
       <div className="grid grid-cols-1 gap-12">
-        {circuits.map((circuit, idx) => (
+        {CIRCUITS.map((circuit, idx) => (
           <motion.div
             key={circuit.id}
             initial={{ opacity: 0, y: 20 }}
@@ -59,7 +57,7 @@ export default function Circuits() {
           >
             <div className="lg:w-1/3 relative h-80 lg:h-auto overflow-hidden">
               <img
-                src={circuit.image}
+                src={circuitImages[circuit.id] || FALLBACK_IMAGE}
                 alt={circuit.name}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                 referrerPolicy="no-referrer"
@@ -67,7 +65,7 @@ export default function Circuits() {
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="absolute top-6 left-6 bg-amber-500 text-amber-950 font-bold px-4 py-2 rounded-2xl text-sm shadow-lg">
-                {circuit.duration}
+                {circuitDurations[circuit.id]}
               </div>
             </div>
             <div className="lg:w-2/3 p-10 lg:p-16 space-y-8 flex flex-col justify-center">
@@ -80,7 +78,7 @@ export default function Circuits() {
                   {circuit.name}
                 </h2>
                 <p className="text-amber-800/70 text-lg leading-relaxed max-w-2xl">
-                  {circuit.description}
+                  {circuitDescriptions[circuit.id]}
                 </p>
               </div>
 
@@ -88,15 +86,17 @@ export default function Circuits() {
                 <div className="space-y-4">
                   <h4 className="text-sm font-bold text-amber-900/40 uppercase tracking-widest">Key Destinations</h4>
                   <div className="flex flex-wrap gap-2">
-                    {circuit.stops.map((stop) => (
+                    {circuit.stops.slice(0, 4).map((stop) => (
                       <div key={stop} className="flex items-center space-x-2 bg-amber-50 px-4 py-2 rounded-xl text-amber-900 font-medium text-sm border border-amber-100">
                         <MapPin className="w-4 h-4 text-amber-600" />
                         <span>{stop}</span>
                       </div>
                     ))}
-                    <div className="flex items-center space-x-2 bg-amber-100/50 px-4 py-2 rounded-xl text-amber-900/60 font-bold text-xs border border-amber-200 border-dashed">
-                      <span>+ More</span>
-                    </div>
+                    {circuit.stops.length > 4 && (
+                      <div className="flex items-center space-x-2 bg-amber-100/50 px-4 py-2 rounded-xl text-amber-900/60 font-bold text-xs border border-amber-200 border-dashed">
+                        <span>+{circuit.stops.length - 4} More</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -105,11 +105,11 @@ export default function Circuits() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-amber-800/60">Best Time:</span>
-                      <span className="font-bold text-amber-900">{circuit.bestTime}</span>
+                      <span className="font-bold text-amber-900">{circuitBestTimes[circuit.id]}</span>
                     </div>
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-amber-800/60">Difficulty:</span>
-                      <span className="font-bold text-amber-900">{circuit.difficulty}</span>
+                      <span className="font-bold text-amber-900">{circuitDifficulties[circuit.id]}</span>
                     </div>
                   </div>
                 </div>
@@ -117,7 +117,7 @@ export default function Circuits() {
 
               <div className="pt-8 border-t border-amber-50 flex items-center justify-between">
                 <Link
-                  to="/temples"
+                  to={`/temples?circuit=${circuit.id}`}
                   className="bg-amber-900 text-amber-50 px-8 py-4 rounded-2xl font-bold hover:bg-amber-800 transition-all shadow-lg flex items-center space-x-2 group/btn"
                 >
                   <span>Explore Route</span>

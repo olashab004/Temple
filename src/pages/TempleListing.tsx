@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import type { Temple } from "../types";
 import { getTemples } from "../lib/templeStore";
+import { CIRCUITS } from "../data/circuits";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
 
@@ -16,6 +17,7 @@ export default function TempleListing() {
   const query = searchParams.get("q") || "";
   const stateFilter = searchParams.get("state") || "";
   const deityFilter = searchParams.get("deity") || "";
+  const circuitFilter = searchParams.get("circuit") || "";
 
   useEffect(() => {
     // Load from localStorage on mount
@@ -23,14 +25,33 @@ export default function TempleListing() {
   }, []);
 
   const filteredTemples = useMemo(() => {
-    return temples.filter((temple) => {
+    let result = temples;
+
+    // Filter by circuit if present
+    if (circuitFilter) {
+      const circuit = CIRCUITS.find(c => c.id === circuitFilter);
+      if (circuit) {
+        result = result.filter(temple => 
+          circuit.stops.some(stop => 
+            temple.name.toLowerCase().includes(stop.toLowerCase()) ||
+            temple.location.city.toLowerCase().includes(stop.toLowerCase())
+          )
+        );
+      }
+    }
+
+    return result.filter((temple) => {
       const searchStr = `${temple.name} ${temple.location.city} ${temple.location.state} ${temple.deity}`.toLowerCase();
-      const matchesQuery = searchStr.includes(query.toLowerCase());
+      
+      // Improved query matching: split by spaces and check if any term matches (OR logic)
+      const queryTerms = query.toLowerCase().split(/\s+/).filter(Boolean);
+      const matchesQuery = queryTerms.length === 0 || queryTerms.some(term => searchStr.includes(term));
+      
       const matchesState = !stateFilter || temple.location.state === stateFilter;
       const matchesDeity = !deityFilter || temple.deity.toLowerCase().includes(deityFilter.toLowerCase());
       return matchesQuery && matchesState && matchesDeity;
     });
-  }, [temples, query, stateFilter, deityFilter]);
+  }, [temples, query, stateFilter, deityFilter, circuitFilter]);
 
   const states = Array.from(new Set(temples.map((t) => t.location.state)));
   const deities = Array.from(new Set(temples.map((t) => t.deity.split(" ")[0]))); // Simplified deity categories
@@ -42,6 +63,10 @@ export default function TempleListing() {
     } else {
       newParams.delete(key);
     }
+    // If we are changing filters, clear the circuit filter to avoid confusion
+    if (key !== "circuit" && newParams.has("circuit")) {
+      newParams.delete("circuit");
+    }
     setSearchParams(newParams);
   };
 
@@ -49,12 +74,18 @@ export default function TempleListing() {
     setSearchParams({});
   };
 
+  const activeCircuit = CIRCUITS.find(c => c.id === circuitFilter);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       <div className="space-y-4">
-        <h1 className="text-4xl font-bold text-amber-900 tracking-tight">Temple Directory</h1>
+        <h1 className="text-4xl font-bold text-amber-900 tracking-tight">
+          {activeCircuit ? `${activeCircuit.name} Destinations` : "Temple Directory"}
+        </h1>
         <p className="text-amber-800/60 max-w-2xl">
-          Browse through our collection of sacred temples across India. Filter by state, city, or deity to find your destination.
+          {activeCircuit 
+            ? `Exploring the sacred path of ${activeCircuit.name}. Discover the temples that make up this spiritual journey.`
+            : "Browse through our collection of sacred temples across India. Filter by state, city, or deity to find your destination."}
         </p>
       </div>
 
@@ -67,7 +98,7 @@ export default function TempleListing() {
                 <Filter className="w-5 h-5" />
                 <span>Filters</span>
               </div>
-              {(query || stateFilter || deityFilter) && (
+              {(query || stateFilter || deityFilter || circuitFilter) && (
                 <button
                   onClick={clearFilters}
                   className="text-xs font-bold text-amber-600 hover:text-amber-800 transition-colors"
@@ -76,6 +107,19 @@ export default function TempleListing() {
                 </button>
               )}
             </div>
+
+            {/* Active Circuit Badge */}
+            {activeCircuit && (
+              <div className="bg-amber-50 p-4 rounded-2xl border border-amber-100 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold text-amber-900/40 uppercase tracking-widest">Active Circuit</span>
+                  <button onClick={() => updateFilters("circuit", "")}>
+                    <X className="w-4 h-4 text-amber-400 hover:text-amber-600" />
+                  </button>
+                </div>
+                <div className="text-sm font-bold text-amber-900">{activeCircuit.name}</div>
+              </div>
+            )}
 
             {/* Search Input */}
             <div className="space-y-2">
