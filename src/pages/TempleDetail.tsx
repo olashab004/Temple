@@ -11,6 +11,7 @@ const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5
 export default function TempleDetail() {
   const { id } = useParams();
   const [temple, setTemple] = useState<Temple | null>(null);
+  const [nearbyTemples, setNearbyTemples] = useState<Temple[]>([]);
   const [activeTab, setActiveTab] = useState("history");
   const [isLoading, setIsLoading] = useState(true);
 
@@ -18,7 +19,17 @@ export default function TempleDetail() {
     const allTemples = getTemples();
     const found = allTemples.find((t: Temple) => t.id === id);
     setTemple(found || null);
+
+    if (found) {
+      // Find temples in the same state, excluding the current one
+      const nearby = allTemples
+        .filter((t: Temple) => t.location.state === found.location.state && t.id !== id)
+        .slice(0, 3); // Show up to 3 nearby temples
+      setNearbyTemples(nearby);
+    }
+
     setIsLoading(false);
+    window.scrollTo(0, 0);
   }, [id]);
 
   if (isLoading) {
@@ -262,23 +273,33 @@ export default function TempleDetail() {
             <div className="bg-white p-8 rounded-3xl border border-amber-100 shadow-sm space-y-6">
               <h3 className="text-lg font-bold text-amber-900">Nearby Temples</h3>
               <div className="space-y-4">
-                {[1, 2].map((i) => (
-                  <div key={i} className="flex items-center space-x-4 group cursor-pointer">
-                    <div className="w-16 h-16 bg-amber-100 rounded-2xl overflow-hidden shrink-0">
-                      <img
-                        src={`https://images.unsplash.com/photo-1590050752117-23a9d7fc91db?w=100&h=100&fit=crop&q=80`}
-                        alt="Nearby"
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform"
-                        referrerPolicy="no-referrer"
-                        onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}
-                      />
-                    </div>
-                    <div>
-                      <p className="font-bold text-amber-900 text-sm group-hover:text-amber-600 transition-colors">Sacred Shrine {i}</p>
-                      <p className="text-xs text-amber-800/60">5.2 km away</p>
-                    </div>
-                  </div>
-                ))}
+                {nearbyTemples.length > 0 ? (
+                  nearbyTemples.map((nearby) => (
+                    <Link
+                      key={nearby.id}
+                      to={`/temples/${nearby.id}`}
+                      className="flex items-center space-x-4 group cursor-pointer"
+                    >
+                      <div className="w-16 h-16 bg-amber-100 rounded-2xl overflow-hidden shrink-0">
+                        <img
+                          src={nearby.image || FALLBACK_IMAGE}
+                          alt={nearby.name}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}
+                        />
+                      </div>
+                      <div>
+                        <p className="font-bold text-amber-900 text-sm group-hover:text-amber-600 transition-colors line-clamp-1">
+                          {nearby.name}
+                        </p>
+                        <p className="text-xs text-amber-800/60">{nearby.location.city}, {nearby.location.state}</p>
+                      </div>
+                    </Link>
+                  ))
+                ) : (
+                  <p className="text-sm text-amber-800/60 italic">No other temples found in this state.</p>
+                )}
               </div>
             </div>
           </aside>

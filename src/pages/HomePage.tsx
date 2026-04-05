@@ -27,7 +27,7 @@ export default function HomePage() {
       <section className="relative h-[80vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1548013146-72479768bbaa?w=1200&q=80"
+            src="https://upload.wikimedia.org/wikipedia/commons/f/ff/Kashi_Vishwanath.jpg"
             alt="Temple Hero"
             className="w-full h-full object-cover brightness-50"
             referrerPolicy="no-referrer"
@@ -175,7 +175,7 @@ export default function HomePage() {
             <div className="relative">
               <div className="aspect-square rounded-3xl overflow-hidden shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
                 <img
-                  src="https://images.unsplash.com/photo-1590050752117-23a9d7fc91db?w=1000&q=80"
+                  src="https://upload.wikimedia.org/wikipedia/commons/8/80/Madurai_Meenakshi_Temple_Gopuram.jpg"
                   alt="Temple Detail"
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"

@@ -6,9 +6,9 @@ import { CIRCUITS } from "../data/circuits";
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
 
 const circuitImages: Record<string, string> = {
-  "char-dham": "https://images.unsplash.com/photo-1506461883276-594a12b11cf3?w=1200&q=80",
-  "jyotirlinga": "https://images.unsplash.com/photo-1590050752117-23a9d7fc91db?w=1200&q=80",
-  "shakti-peeth": "https://images.unsplash.com/photo-1591382755255-763488219468?w=1200&q=80"
+  "char-dham": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Badrinath_Temple_Uttarakhand.jpg",
+  "jyotirlinga": "https://upload.wikimedia.org/wikipedia/commons/f/ff/Kashi_Vishwanath.jpg",
+  "shakti-peeth": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Kamakhya_Temple_Assam.jpg/1200px-Kamakhya_Temple_Assam.jpg"
 };
 
 const circuitDescriptions: Record<string, string> = {
@@ -137,7 +137,7 @@ export default function Circuits() {
       <section className="bg-amber-900 rounded-[3rem] p-12 lg:p-24 text-center space-y-8 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
           <img
-            src="https://images.unsplash.com/photo-1602616605367-96f05762927e?w=1200&q=80"
+            src="https://upload.wikimedia.org/wikipedia/commons/7/75/Somnath_Temple_Gujarat.jpg"
             alt="Pattern"
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
