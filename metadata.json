@@ -1,0 +1,5 @@
+{
+  "name": "India Temple Heritage Portal",
+  "description": "A comprehensive guide to India's sacred temples, pilgrimage circuits, and cultural heritage.",
+  "requestFramePermissions": ["geolocation"]
+}
