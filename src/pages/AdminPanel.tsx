@@ -1,17 +1,25 @@
 import { useState, useEffect } from "react";
-import { Plus, Trash2, Edit2, ShieldCheck, Save, X, Info, MapPin, Star } from "lucide-react";
+import { Plus, Trash2, Edit2, ShieldCheck, Save, X, Info, MapPin, Star, Lock, LogIn, Download, Copy } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import type { Temple } from "../types";
 import { getTemples, saveTemples } from "../lib/templeStore";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
+const ADMIN_PASSWORD = "admin"; // Simple password for now
 
 export default function AdminPanel() {
   const [temples, setTemples] = useState<Temple[]>(getTemples());
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return sessionStorage.getItem("admin_auth") === "true";
+  });
+  const [passwordInput, setPasswordInput] = useState("");
+  const [authError, setAuthError] = useState("");
+
   const [newTemple, setNewTemple] = useState<Partial<Temple>>({
     name: "",
     location: { state: "", city: "" },
@@ -29,8 +37,26 @@ export default function AdminPanel() {
     setTemples(getTemples());
   }, []);
 
-  const fetchTemples = () => {
-    setTemples(getTemples());
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordInput === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      sessionStorage.setItem("admin_auth", "true");
+      setAuthError("");
+    } else {
+      setAuthError("Invalid password. Please try again.");
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    sessionStorage.removeItem("admin_auth");
+  };
+
+  const handleExport = () => {
+    const data = JSON.stringify(temples, null, 2);
+    navigator.clipboard.writeText(data);
+    alert("Temple data copied to clipboard! You can share this JSON with the developer to make these changes permanent on the public site.");
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -52,7 +78,7 @@ export default function AdminPanel() {
     setIsAdding(false);
     setEditingId(null);
     resetForm();
-    alert("Changes saved to local storage! Note: These changes are local to your browser.");
+    alert("Changes saved successfully! These changes are now visible across the site in your browser.");
   };
 
   const handleDelete = async (id: string) => {
@@ -90,6 +116,56 @@ export default function AdminPanel() {
     });
   };
 
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center px-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="max-w-md w-full bg-white p-10 rounded-[2.5rem] border border-amber-100 shadow-xl space-y-8"
+        >
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 bg-amber-100 rounded-2xl flex items-center justify-center mx-auto text-amber-600">
+              <Lock className="w-8 h-8" />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-2xl font-bold text-amber-900">Admin Access</h1>
+              <p className="text-amber-800/60">Please enter the administrator password to continue.</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-amber-900/40 uppercase tracking-widest">Password</label>
+              <input
+                required
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                className="w-full bg-amber-50/50 border border-amber-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
+                placeholder="Enter password"
+              />
+              {authError && (
+                <p className="text-red-500 text-xs font-medium">{authError}</p>
+              )}
+            </div>
+            <button
+              type="submit"
+              className="w-full bg-amber-900 text-amber-50 font-bold py-4 rounded-xl transition-all shadow-lg hover:bg-amber-800 flex items-center justify-center space-x-2"
+            >
+              <LogIn className="w-5 h-5" />
+              <span>Login to Dashboard</span>
+            </button>
+          </form>
+          
+          <div className="text-center">
+            <p className="text-xs text-amber-800/40 italic">Hint: The default password is "admin"</p>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 bg-amber-900 p-10 rounded-[2.5rem] text-amber-50 shadow-xl relative overflow-hidden">
@@ -103,8 +179,22 @@ export default function AdminPanel() {
           <p className="text-amber-200/60 max-w-md">
             Manage the sacred heritage database. Add new temples, edit existing entries, and maintain data accuracy.
           </p>
+          <button 
+            onClick={handleLogout}
+            className="text-xs text-amber-400 hover:text-amber-300 font-bold underline transition-colors"
+          >
+            Logout
+          </button>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 relative z-10">
+          <button
+            onClick={handleExport}
+            className="flex items-center justify-center space-x-2 bg-amber-800/50 hover:bg-amber-800 text-amber-50 font-bold px-6 py-4 rounded-2xl transition-all border border-amber-700/50"
+            title="Export data to share with developer"
+          >
+            <Copy className="w-5 h-5" />
+            <span>Export Data</span>
+          </button>
           <button
             onClick={handleReset}
             className="flex items-center justify-center space-x-2 bg-amber-800/50 hover:bg-amber-800 text-amber-50 font-bold px-6 py-4 rounded-2xl transition-all border border-amber-700/50"
@@ -249,13 +339,32 @@ export default function AdminPanel() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-amber-900/40 uppercase tracking-widest">Image URL</label>
-                  <input
-                    required
-                    type="url"
-                    value={newTemple.image}
-                    onChange={(e) => setNewTemple({ ...newTemple, image: e.target.value })}
-                    className="w-full bg-amber-50/50 border border-amber-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
-                  />
+                  <div className="flex gap-4 items-start">
+                    <div className="flex-grow space-y-2">
+                      <input
+                        required
+                        type="url"
+                        value={newTemple.image}
+                        onChange={(e) => setNewTemple({ ...newTemple, image: e.target.value })}
+                        className="w-full bg-amber-50/50 border border-amber-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
+                        placeholder="https://example.com/image.jpg"
+                      />
+                      <p className="text-[10px] text-amber-800/40 italic">
+                        Tip: Use direct image links (ending in .jpg, .png, etc.) for best results.
+                      </p>
+                    </div>
+                    {newTemple.image && (
+                      <div className="w-20 h-20 rounded-xl overflow-hidden border border-amber-100 shrink-0 bg-amber-50">
+                        <img 
+                          src={newTemple.image} 
+                          alt="Preview" 
+                          className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="pt-6">
                   <button
