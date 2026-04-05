@@ -54,9 +54,9 @@ export const TEMPLES_DATA: Temple[] = [
     "dressCode": "Strict dress code. Men: Dhoti/Formal Trousers. Women: Saree/Salwar Kameez with dupatta.",
     "nearby": {
       "accommodation": "Many luxury and budget hotels near the temple.",
-      "transport": "Madurai Junction Railway Station and Madurai International Airport."
+      "transport": "Madurai Junction Railway Station and Madurai Airport."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/8/80/Madurai_Meenakshi_Temple_Gopuram.jpg"
+    "image": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=600&q=80"
   },
   {
     "id": "3",
@@ -80,7 +80,7 @@ export const TEMPLES_DATA: Temple[] = [
       "accommodation": "Sagar Darshan Guest House and other hotels.",
       "transport": "Veraval Railway Station is the nearest."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/7/75/Somnath_Temple_Gujarat.jpg"
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTHA8YKr7J916iMpgceayRVrNob0EGpkC12kQ&s"
   },
   {
     "id": "4",
@@ -160,7 +160,7 @@ export const TEMPLES_DATA: Temple[] = [
       "accommodation": "Sarai (lodges) within the complex and many hotels nearby.",
       "transport": "Amritsar Junction and Sri Guru Ram Dass Jee International Airport."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/d/d3/Golden_Temple_Amritsar_India.jpg"
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQlE1rDiut8HhQhyEUmtWuM37S0LVlzfyY7Cw&s"
   },
   {
     "id": "7",
@@ -238,7 +238,7 @@ export const TEMPLES_DATA: Temple[] = [
       "accommodation": "Guest houses in Hampi and hotels in Hospet.",
       "transport": "Hospet Railway Station is the nearest."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Hampi_virupaksha_temple.jpg/1200px-Hampi_virupaksha_temple.jpg"
+    "image": "https://images.unsplash.com/photo-1590766940554-634a7ed41450?w=600&q=80"
   },
   {
     "id": "10",
@@ -391,7 +391,7 @@ export const TEMPLES_DATA: Temple[] = [
       "accommodation": "Hotels in Mount Abu.",
       "transport": "Abu Road Railway Station is the nearest."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Dilwara_Temple_Mount_Abu.jpg/1200px-Dilwara_Temple_Mount_Abu.jpg"
+    "image": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=600&q=80"
   },
   {
     "id": "16",
@@ -489,7 +489,7 @@ export const TEMPLES_DATA: Temple[] = [
       "accommodation": "Hotels in Ponda and Panaji.",
       "transport": "Madgaon Railway Station (30km)."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Mangueshi_Temple_Goa.jpg/1200px-Mangueshi_Temple_Goa.jpg"
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRaehGonRVMpdJQE4bK9l5r5wf9TrynqMBmCQ&s"
   },
   {
     "id": "20",
@@ -514,7 +514,7 @@ export const TEMPLES_DATA: Temple[] = [
       "accommodation": "Government guest houses and local hotels.",
       "transport": "Agartala Railway Station (55km)."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Tripura_Sundari_Temple_Tripura.jpg/1200px-Tripura_Sundari_Temple_Tripura.jpg"
+    "image": "https://images.unsplash.com/photo-1590766940554-634a7ed41450?w=600&q=80"
   },
   {
     "id": "21",
@@ -562,7 +562,7 @@ export const TEMPLES_DATA: Temple[] = [
       "accommodation": "Local lodges and government guest houses.",
       "transport": "Jagdalpur Railway Station (80km)."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Danteshwari_Temple_Dantewada.jpg/1200px-Danteshwari_Temple_Dantewada.jpg"
+    "image": "https://images.unsplash.com/photo-1582510003544-4d00b7f74220?w=600&q=80"
   },
   {
     "id": "23",
@@ -610,7 +610,7 @@ export const TEMPLES_DATA: Temple[] = [
       "accommodation": "Lodges in Likabali and Silapathar.",
       "transport": "Silapathar Railway Station (10km)."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Malinithan_Temple_Arunachal_Pradesh.jpg/1200px-Malinithan_Temple_Arunachal_Pradesh.jpg"
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTncp2jR0T-YFm46ex07_FGf61S1y9gbhP2Rw&s"
   },
   {
     "id": "25",
@@ -635,7 +635,7 @@ export const TEMPLES_DATA: Temple[] = [
       "accommodation": "Hotels in Imphal city.",
       "transport": "Imphal International Airport."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Shree_Govindajee_Temple_Imphal.jpg/1200px-Shree_Govindajee_Temple_Imphal.jpg"
+    "image": "https://images.unsplash.com/photo-1590766940554-634a7ed41450?w=600&q=80"
   },
   {
     "id": "26",
@@ -729,7 +729,7 @@ export const TEMPLES_DATA: Temple[] = [
       "accommodation": "Hotels in Dimapur city.",
       "transport": "Dimapur Railway Station and Dimapur Airport."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Kalibari_Dimapur.jpg/1200px-Kalibari_Dimapur.jpg"
+    "image": "https://images.unsplash.com/photo-1598890777032-bde835ba27c2?w=600&q=80"
   },
   {
     "id": "30",
@@ -754,7 +754,7 @@ export const TEMPLES_DATA: Temple[] = [
       "accommodation": "GMVN Guest Houses and local lodges in Kedarnath and Gaurikund.",
       "transport": "Nearest railhead is Rishikesh. Nearest airport is Jolly Grant, Dehradun. Requires a 16km trek from Gaurikund."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Kedarnath_Temple_Uttarakhand.jpg/1200px-Kedarnath_Temple_Uttarakhand.jpg"
+    "image": "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80"
   },
   {
     "id": "31",
@@ -825,7 +825,7 @@ export const TEMPLES_DATA: Temple[] = [
       "accommodation": "Numerous hotels in New Delhi.",
       "transport": "Kalkaji Mandir Metro Station is the nearest."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/LotusTemple.jpg/1200px-LotusTemple.jpg"
+    "image": "https://images.unsplash.com/photo-1592639296346-560c37a0f711?w=600&q=80"
   },
   {
     "id": "34",
@@ -850,6 +850,6 @@ export const TEMPLES_DATA: Temple[] = [
       "accommodation": "Hotels in New Delhi.",
       "transport": "Akshardham Metro Station is the nearest."
     },
-    "image": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Akshardham_Temple_Delhi.jpg/1200px-Akshardham_Temple_Delhi.jpg"
+    "image": "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=600&q=80"
   }
 ];

@@ -13,6 +13,7 @@ export default function AdminPanel() {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [exportData, setExportData] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     if (typeof window === "undefined") return false;
     return sessionStorage.getItem("admin_auth") === "true";
@@ -55,8 +56,31 @@ export default function AdminPanel() {
 
   const handleExport = () => {
     const data = JSON.stringify(temples, null, 2);
-    navigator.clipboard.writeText(data);
-    alert("Temple data copied to clipboard! You can share this JSON with the developer to make these changes permanent on the public site.");
+    setExportData(data);
+    
+    // Try to copy to clipboard as a convenience
+    try {
+      navigator.clipboard.writeText(data).then(() => {
+        alert("Temple data copied to clipboard! You can also copy it from the window that just opened.");
+      }).catch(err => {
+        console.error("Clipboard copy failed:", err);
+      });
+    } catch (e) {
+      console.error("Clipboard API not available:", e);
+    }
+  };
+
+  const downloadData = () => {
+    if (!exportData) return;
+    const blob = new Blob([exportData], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "temples.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -378,6 +402,58 @@ export default function AdminPanel() {
               </div>
             </form>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {exportData && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-amber-950/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white w-full max-w-2xl p-10 rounded-[2.5rem] shadow-2xl space-y-6 max-h-[90vh] flex flex-col"
+            >
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-bold text-amber-900">Export Temple Data</h2>
+                  <p className="text-sm text-amber-800/60">Copy this JSON and share it with the developer.</p>
+                </div>
+                <button onClick={() => setExportData(null)} className="p-2 text-amber-400 hover:text-amber-600">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <div className="flex-grow overflow-hidden border border-amber-100 rounded-2xl bg-amber-50/30">
+                <textarea
+                  readOnly
+                  value={exportData}
+                  className="w-full h-full p-6 font-mono text-xs bg-transparent focus:outline-none resize-none"
+                  onClick={(e) => (e.target as HTMLTextAreaElement).select()}
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(exportData);
+                    alert("Copied to clipboard!");
+                  }}
+                  className="flex-grow bg-amber-900 text-amber-50 font-bold py-4 rounded-xl transition-all hover:bg-amber-800 flex items-center justify-center space-x-2"
+                >
+                  <Copy className="w-5 h-5" />
+                  <span>Copy to Clipboard</span>
+                </button>
+                <button
+                  onClick={downloadData}
+                  className="flex-grow bg-amber-500 text-amber-950 font-bold py-4 rounded-xl transition-all hover:bg-amber-600 flex items-center justify-center space-x-2"
+                >
+                  <Download className="w-5 h-5" />
+                  <span>Download .json</span>
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
