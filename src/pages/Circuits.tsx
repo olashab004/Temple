@@ -3,7 +3,8 @@ import { motion } from "motion/react";
 import { Link } from "react-router-dom";
 import { CIRCUITS } from "../data/circuits";
 
-const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80"; // This is Taj Mahal, let's use a temple one
+const TEMPLE_FALLBACK = "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80"; // Kedarnath
 
 const circuitImages: Record<string, string> = {
   "char-dham": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Badrinath_Temple_Uttarakhand.jpg",
@@ -57,11 +58,11 @@ export default function Circuits() {
           >
             <div className="lg:w-1/3 relative h-80 lg:h-auto overflow-hidden">
               <img
-                src={circuitImages[circuit.id] || FALLBACK_IMAGE}
+                src={circuitImages[circuit.id] || TEMPLE_FALLBACK}
                 alt={circuit.name}
                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000"
                 referrerPolicy="no-referrer"
-                onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}
+                onError={(e) => { e.currentTarget.src = TEMPLE_FALLBACK; }}
               />
               <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               <div className="absolute top-6 left-6 bg-amber-500 text-amber-950 font-bold px-4 py-2 rounded-2xl text-sm shadow-lg">
@@ -136,13 +137,13 @@ export default function Circuits() {
       {/* Custom Circuit CTA */}
       <section className="bg-amber-900 rounded-[3rem] p-12 lg:p-24 text-center space-y-8 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/7/75/Somnath_Temple_Gujarat.jpg"
-            alt="Pattern"
-            className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
-            onError={(e) => { e.currentTarget.src = FALLBACK_IMAGE; }}
-          />
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/7/75/Somnath_Temple_Gujarat.jpg"
+              alt="Pattern"
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+              onError={(e) => { e.currentTarget.src = TEMPLE_FALLBACK; }}
+            />
         </div>
         <div className="relative z-10 space-y-4 max-w-2xl mx-auto">
           <h2 className="text-4xl font-bold text-white tracking-tight leading-tight">

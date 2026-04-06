@@ -5,7 +5,7 @@ import { motion } from "motion/react";
 import type { Temple } from "../types";
 import { getTemples } from "../lib/templeStore";
 
-const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80"; // Kedarnath
 
 export default function HomePage() {
   const [temples, setTemples] = useState<Temple[]>(getTemples().slice(0, 3));

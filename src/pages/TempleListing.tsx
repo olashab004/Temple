@@ -7,7 +7,7 @@ import type { Temple } from "../types";
 import { getTemples } from "../lib/templeStore";
 import { CIRCUITS } from "../data/circuits";
 
-const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80"; // Kedarnath
 
 export default function TempleListing() {
   const [temples, setTemples] = useState<Temple[]>(getTemples());

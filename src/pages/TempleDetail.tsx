@@ -6,7 +6,7 @@ import { cn } from "../lib/utils";
 import type { Temple } from "../types";
 import { getTemples } from "../lib/templeStore";
 
-const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80"; // Kedarnath
 
 export default function TempleDetail() {
   const { id } = useParams();
@@ -264,10 +264,15 @@ export default function TempleDetail() {
                 </div>
               </div>
 
-              <button className="w-full bg-amber-500 hover:bg-amber-600 text-amber-950 font-bold py-4 rounded-xl transition-all flex items-center justify-center space-x-2 group">
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${temple.name}, ${temple.location.city}, ${temple.location.state}`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-amber-500 hover:bg-amber-600 text-amber-950 font-bold py-4 rounded-xl transition-all flex items-center justify-center space-x-2 group"
+              >
                 <span>View on Map</span>
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+              </a>
             </div>
 
             <div className="bg-white p-8 rounded-3xl border border-amber-100 shadow-sm space-y-6">

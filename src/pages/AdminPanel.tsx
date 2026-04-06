@@ -5,12 +5,14 @@ import { cn } from "../lib/utils";
 import type { Temple } from "../types";
 import { getTemples, saveTemples } from "../lib/templeStore";
 
-const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=600&q=80";
-const ADMIN_PASSWORD = "admin"; // Simple password for now
+const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80"; // Kedarnath
+const DEFAULT_ADMIN_PASSWORD = "admin";
+const PASSWORD_STORAGE_KEY = "admin_password_v1";
 
 export default function AdminPanel() {
   const [temples, setTemples] = useState<Temple[]>(getTemples());
   const [isAdding, setIsAdding] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [exportData, setExportData] = useState<string | null>(null);
@@ -19,6 +21,8 @@ export default function AdminPanel() {
     return sessionStorage.getItem("admin_auth") === "true";
   });
   const [passwordInput, setPasswordInput] = useState("");
+  const [newPasswordInput, setNewPasswordInput] = useState("");
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
   const [authError, setAuthError] = useState("");
 
   const [newTemple, setNewTemple] = useState<Partial<Temple>>({
@@ -38,15 +42,37 @@ export default function AdminPanel() {
     setTemples(getTemples());
   }, []);
 
+  const getAdminPassword = () => {
+    if (typeof window === "undefined") return DEFAULT_ADMIN_PASSWORD;
+    return localStorage.getItem(PASSWORD_STORAGE_KEY) || DEFAULT_ADMIN_PASSWORD;
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordInput === ADMIN_PASSWORD) {
+    if (passwordInput === getAdminPassword()) {
       setIsAuthenticated(true);
       sessionStorage.setItem("admin_auth", "true");
       setAuthError("");
     } else {
       setAuthError("Invalid password. Please try again.");
     }
+  };
+
+  const handleChangePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newPasswordInput !== confirmPasswordInput) {
+      alert("Passwords do not match!");
+      return;
+    }
+    if (newPasswordInput.length < 4) {
+      alert("Password must be at least 4 characters long.");
+      return;
+    }
+    localStorage.setItem(PASSWORD_STORAGE_KEY, newPasswordInput);
+    setIsChangingPassword(false);
+    setNewPasswordInput("");
+    setConfirmPasswordInput("");
+    alert("Password changed successfully!");
   };
 
   const handleLogout = () => {
@@ -211,6 +237,13 @@ export default function AdminPanel() {
           </button>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 relative z-10">
+          <button
+            onClick={() => setIsChangingPassword(true)}
+            className="flex items-center justify-center space-x-2 bg-amber-800/50 hover:bg-amber-800 text-amber-50 font-bold px-6 py-4 rounded-2xl transition-all border border-amber-700/50"
+          >
+            <Lock className="w-5 h-5" />
+            <span>Change Password</span>
+          </button>
           <button
             onClick={handleExport}
             className="flex items-center justify-center space-x-2 bg-amber-800/50 hover:bg-amber-800 text-amber-50 font-bold px-6 py-4 rounded-2xl transition-all border border-amber-700/50"
@@ -402,6 +435,58 @@ export default function AdminPanel() {
               </div>
             </form>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isChangingPassword && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-amber-950/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white w-full max-w-md p-10 rounded-[2.5rem] shadow-2xl space-y-6"
+            >
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold text-amber-900">Change Password</h2>
+                <button onClick={() => setIsChangingPassword(false)} className="p-2 text-amber-400 hover:text-amber-600">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              
+              <form onSubmit={handleChangePassword} className="space-y-6">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-amber-900/40 uppercase tracking-widest">New Password</label>
+                  <input
+                    required
+                    type="password"
+                    value={newPasswordInput}
+                    onChange={(e) => setNewPasswordInput(e.target.value)}
+                    className="w-full bg-amber-50/50 border border-amber-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
+                    placeholder="Enter new password"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-amber-900/40 uppercase tracking-widest">Confirm Password</label>
+                  <input
+                    required
+                    type="password"
+                    value={confirmPasswordInput}
+                    onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                    className="w-full bg-amber-50/50 border border-amber-100 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-amber-400 transition-all"
+                    placeholder="Confirm new password"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full bg-amber-900 text-amber-50 font-bold py-4 rounded-xl transition-all shadow-lg hover:bg-amber-800 flex items-center justify-center space-x-2"
+                >
+                  <Save className="w-5 h-5" />
+                  <span>Update Password</span>
+                </button>
+              </form>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
