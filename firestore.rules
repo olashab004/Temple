@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 1. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Primitive Definitions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+             request.auth.token.email_verified == true &&
+             request.auth.token.email == "sahilola44@gmail.com";
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidTemple(data) {
+      return data.keys().hasAll(['id', 'name', 'location', 'deity', 'history', 'timings', 'rituals', 'festivals', 'dressCode', 'nearby', 'image'])
+          && data.keys().size() == 11
+          && data.id is string && data.id.size() <= 128
+          && data.name is string && data.name.size() <= 200
+          && data.deity is string && data.deity.size() <= 200
+          && data.history is string && data.history.size() <= 10000
+          && data.timings is string && data.timings.size() <= 500
+          && data.dressCode is string && data.dressCode.size() <= 500
+          && data.image is string && data.image.size() <= 1000
+          && data.location is map
+          && data.location.state is string && data.location.state.size() <= 100
+          && data.location.city is string && data.location.city.size() <= 100
+          && data.nearby is map
+          && data.nearby.accommodation is string && data.nearby.accommodation.size() <= 2000
+          && data.nearby.transport is string && data.nearby.transport.size() <= 2000
+          && data.rituals is list
+          && data.rituals.size() <= 50
+          && data.festivals is list
+          && data.festivals.size() <= 50;
+    }
+
+    // Match block for temples collection
+    match /temples/{templeId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(templeId) && incoming().id == templeId && isValidTemple(incoming());
+      allow update: if isAdmin() && isValidId(templeId) && incoming().id == templeId && isValidTemple(incoming());
+      allow delete: if isAdmin() && isValidId(templeId);
+    }
+  }
+}

@@ -3,17 +3,20 @@ import { Link, useNavigate } from "react-router-dom";
 import { Search, MapPin, ArrowRight, Star, Calendar, Info } from "lucide-react";
 import { motion } from "motion/react";
 import type { Temple } from "../types";
-import { getTemples } from "../lib/templeStore";
+import { subscribeToTemples } from "../lib/templeStore";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80"; // Kedarnath
 
 export default function HomePage() {
-  const [temples, setTemples] = useState<Temple[]>(getTemples().slice(0, 3));
+  const [temples, setTemples] = useState<Temple[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    setTemples(getTemples().slice(0, 3));
+    const unsubscribe = subscribeToTemples((items) => {
+      setTemples(items.slice(0, 3));
+    });
+    return () => unsubscribe();
   }, []);
 
   const handleSearch = (e: React.FormEvent) => {

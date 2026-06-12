@@ -4,7 +4,7 @@ import { MapPin, Calendar, Clock, Info, Shield, Map, ChevronLeft, Star, ArrowRig
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import type { Temple } from "../types";
-import { getTemples } from "../lib/templeStore";
+import { subscribeToTemples } from "../lib/templeStore";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80"; // Kedarnath
 
@@ -16,20 +16,22 @@ export default function TempleDetail() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const allTemples = getTemples();
-    const found = allTemples.find((t: Temple) => t.id === id);
-    setTemple(found || null);
+    setIsLoading(true);
+    const unsubscribe = subscribeToTemples((allTemples) => {
+      const found = allTemples.find((t: Temple) => t.id === id);
+      setTemple(found || null);
 
-    if (found) {
-      // Find temples in the same state, excluding the current one
-      const nearby = allTemples
-        .filter((t: Temple) => t.location.state === found.location.state && t.id !== id)
-        .slice(0, 3); // Show up to 3 nearby temples
-      setNearbyTemples(nearby);
-    }
-
-    setIsLoading(false);
+      if (found) {
+        // Find temples in the same state, excluding the current one
+        const nearby = allTemples
+          .filter((t: Temple) => t.location.state === found.location.state && t.id !== id)
+          .slice(0, 3); // Show up to 3 nearby temples
+        setNearbyTemples(nearby);
+      }
+      setIsLoading(false);
+    });
     window.scrollTo(0, 0);
+    return () => unsubscribe();
   }, [id]);
 
   if (isLoading) {

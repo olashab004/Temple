@@ -4,15 +4,15 @@ import { Search, MapPin, Filter, X, ChevronRight, Star } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import type { Temple } from "../types";
-import { getTemples } from "../lib/templeStore";
+import { subscribeToTemples } from "../lib/templeStore";
 import { CIRCUITS } from "../data/circuits";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80"; // Kedarnath
 
 export default function TempleListing() {
-  const [temples, setTemples] = useState<Temple[]>(getTemples());
+  const [temples, setTemples] = useState<Temple[]>([]);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const query = searchParams.get("q") || "";
   const stateFilter = searchParams.get("state") || "";
@@ -20,8 +20,12 @@ export default function TempleListing() {
   const circuitFilter = searchParams.get("circuit") || "";
 
   useEffect(() => {
-    // Load from localStorage on mount
-    setTemples(getTemples());
+    setIsLoading(true);
+    const unsubscribe = subscribeToTemples((items) => {
+      setTemples(items);
+      setIsLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
   const filteredTemples = useMemo(() => {

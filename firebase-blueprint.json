@@ -1,0 +1,54 @@
+{
+  "entities": {
+    "Temple": {
+      "title": "Temple",
+      "description": "Information about a heritage temple, its deity, history, and travel guide details.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The unique document ID for this temple"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the temple"
+        },
+        "deity": {
+          "type": "string",
+          "description": "The dynamic principal deity of the temple"
+        },
+        "history": {
+          "type": "string",
+          "description": "The rich historical context of the temple"
+        },
+        "timings": {
+          "type": "string",
+          "description": "Open and close timings"
+        },
+        "dressCode": {
+          "type": "string",
+          "description": "Expected visitor dress code"
+        },
+        "image": {
+          "type": "string",
+          "description": "A high-quality photo URL for the temple image"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "deity",
+        "history",
+        "timings",
+        "dressCode",
+        "image"
+      ]
+    }
+  },
+  "firestore": {
+    "temples/{templeId}": {
+      "schema": "Temple",
+      "description": "Collection of dynamic heritage temples managed by the content admin."
+    }
+  }
+}

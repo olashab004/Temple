@@ -3,14 +3,16 @@ import { Plus, Trash2, Edit2, ShieldCheck, Save, X, Info, MapPin, Star, Lock, Lo
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "../lib/utils";
 import type { Temple } from "../types";
-import { getTemples, saveTemples } from "../lib/templeStore";
+import { getTemples, saveTemples, subscribeToTemples, saveTempleFirestore, deleteTempleFirestore } from "../lib/templeStore";
+import { signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "firebase/auth";
+import { auth } from "../lib/firebase";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?w=600&q=80"; // Kedarnath
 const DEFAULT_ADMIN_PASSWORD = "admin";
 const PASSWORD_STORAGE_KEY = "admin_password_v1";
 
 export default function AdminPanel() {
-  const [temples, setTemples] = useState<Temple[]>(getTemples());
+  const [temples, setTemples] = useState<Temple[]>([]);
   const [isAdding, setIsAdding] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -24,6 +26,7 @@ export default function AdminPanel() {
   const [newPasswordInput, setNewPasswordInput] = useState("");
   const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
   const [authError, setAuthError] = useState("");
+  const [firebaseUser, setFirebaseUser] = useState<any>(null);
 
   const [newTemple, setNewTemple] = useState<Partial<Temple>>({
     name: "",
@@ -39,7 +42,22 @@ export default function AdminPanel() {
   });
 
   useEffect(() => {
-    setTemples(getTemples());
+    const unsubscribeTemples = subscribeToTemples((items) => {
+      setTemples(items);
+    });
+
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user);
+      if (user && user.email === "sahilola44@gmail.com" && user.emailVerified) {
+        setIsAuthenticated(true);
+        sessionStorage.setItem("admin_auth", "true");
+      }
+    });
+
+    return () => {
+      unsubscribeTemples();
+      unsubscribeAuth();
+    };
   }, []);
 
   const getAdminPassword = () => {
@@ -55,6 +73,29 @@ export default function AdminPanel() {
       setAuthError("");
     } else {
       setAuthError("Invalid password. Please try again.");
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    const provider = new GoogleAuthProvider();
+    setIsLoading(true);
+    try {
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      if (user && user.email === "sahilola44@gmail.com") {
+        setIsAuthenticated(true);
+        sessionStorage.setItem("admin_auth", "true");
+        setAuthError("");
+        alert(`Signed in as developer Admin: ${user.email}`);
+      } else {
+        await signOut(auth);
+        setAuthError("For safety, only the bootstrapped admin sahilola44@gmail.com can write to this Firestore database.");
+      }
+    } catch (error) {
+      console.error(error);
+      setAuthError("Google sign-in error: " + (error instanceof Error ? error.message : String(error)));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,9 +116,10 @@ export default function AdminPanel() {
     alert("Password changed successfully!");
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setIsAuthenticated(false);
     sessionStorage.removeItem("admin_auth");
+    await signOut(auth);
   };
 
   const handleExport = () => {
@@ -111,32 +153,50 @@ export default function AdminPanel() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
-    let updatedTemples: Temple[];
-    if (editingId) {
-      updatedTemples = temples.map(t => t.id === editingId ? { ...t, ...newTemple } as Temple : t);
-    } else {
-      const templeToAdd = {
+    try {
+      const templeToSave = {
         ...newTemple,
-        id: Date.now().toString(),
+        id: editingId || Date.now().toString(),
       } as Temple;
-      updatedTemples = [...temples, templeToAdd];
-    }
 
-    saveTemples(updatedTemples);
-    setTemples(updatedTemples);
-    setIsAdding(false);
-    setEditingId(null);
-    resetForm();
-    alert("Changes saved successfully! These changes are now visible across the site in your browser.");
+      // Save live to Firestore database
+      await saveTempleFirestore(templeToSave);
+      
+      // Sync local storage as cache
+      const updated = editingId 
+        ? temples.map(t => t.id === editingId ? templeToSave : t)
+        : [...temples, templeToSave];
+      saveTemples(updated);
+
+      setIsAdding(false);
+      setEditingId(null);
+      resetForm();
+      alert("Saved successfully to Firestore! Updates are live for all public visitors.");
+    } catch (error) {
+      console.error("Save error: ", error);
+      alert("Unauthorized or database save error. Ensure you are signed in with sahilola44@gmail.com on Google.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this temple?")) return;
-    const updatedTemples = temples.filter(t => t.id !== id);
-    saveTemples(updatedTemples);
-    setTemples(updatedTemples);
-    alert("Temple deleted from local storage.");
+    if (!confirm("Are you sure you want to delete this temple from Firestore?")) return;
+    setIsLoading(true);
+    try {
+      await deleteTempleFirestore(id);
+      
+      const updated = temples.filter(t => t.id !== id);
+      saveTemples(updated);
+      alert("Deleted successfully from Firestore.");
+    } catch (error) {
+      console.error("Delete error: ", error);
+      alert("Unauthorized or database deletion error. Ensure you are signed in with sahilola44@gmail.com on Google.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleReset = () => {
@@ -168,7 +228,7 @@ export default function AdminPanel() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-[80vh] flex items-center justify-center px-4">
+      <div className="min-h-[80vh] flex flex-col items-center justify-center px-4 space-y-6">
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -180,7 +240,7 @@ export default function AdminPanel() {
             </div>
             <div className="space-y-2">
               <h1 className="text-2xl font-bold text-amber-900">Admin Access</h1>
-              <p className="text-amber-800/60">Please enter the administrator password to continue.</p>
+              <p className="text-amber-800/60">Please login via standard password or Google Authorization.</p>
             </div>
           </div>
 
@@ -204,9 +264,25 @@ export default function AdminPanel() {
               className="w-full bg-amber-900 text-amber-50 font-bold py-4 rounded-xl transition-all shadow-lg hover:bg-amber-800 flex items-center justify-center space-x-2"
             >
               <LogIn className="w-5 h-5" />
-              <span>Login to Dashboard</span>
+              <span>Login with Password</span>
             </button>
           </form>
+
+          <div className="relative flex py-2 items-center">
+            <div className="flex-grow border-t border-amber-100"></div>
+            <span className="flex-shrink mx-4 text-xs font-bold text-amber-400 uppercase tracking-widest">OR</span>
+            <div className="flex-grow border-t border-amber-100"></div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGoogleLogin}
+            disabled={isLoading}
+            className="w-full bg-white border border-amber-200 text-amber-900 hover:bg-amber-50 font-bold py-4 rounded-xl transition-all shadow-sm flex items-center justify-center space-x-2"
+          >
+            <ShieldCheck className="w-5 h-5 text-amber-600" />
+            <span>Sign in with Google</span>
+          </button>
           
           <div className="text-center">
             <p className="text-xs text-amber-800/40 italic">Hint: The default password is "admin"</p>
@@ -223,18 +299,33 @@ export default function AdminPanel() {
         <div className="relative z-10 space-y-2">
           <div className="flex items-center space-x-2 text-amber-400 font-bold uppercase tracking-widest text-xs">
             <ShieldCheck className="w-4 h-4" />
-            <span>Admin Portal</span>
+            <span>Admin Portal {firebaseUser ? `(Active: ${firebaseUser.email})` : ""}</span>
           </div>
           <h1 className="text-4xl font-bold tracking-tight">Content Management</h1>
           <p className="text-amber-200/60 max-w-md">
-            Manage the sacred heritage database. Add new temples, edit existing entries, and maintain data accuracy.
+            Manage the live Firestore database. Seeding is fully synchronized.
+            {!firebaseUser && (
+              <span className="block mt-2 text-xs text-amber-350 font-bold">
+                ⚠️ Warning: To execute live database writes, please click "Activate Database Auth" (Sign in with Google as sahilola44@gmail.com).
+              </span>
+            )}
           </p>
-          <button 
-            onClick={handleLogout}
-            className="text-xs text-amber-400 hover:text-amber-300 font-bold underline transition-colors"
-          >
-            Logout
-          </button>
+          <div className="flex items-center space-x-4 pt-2">
+            <button 
+              onClick={handleLogout}
+              className="text-xs text-amber-400 hover:text-amber-300 font-bold underline transition-colors"
+            >
+              Logout
+            </button>
+            {!firebaseUser && (
+              <button
+                onClick={handleGoogleLogin}
+                className="text-xs bg-amber-500 hover:bg-amber-600 text-amber-950 font-extrabold px-3 py-1 rounded-lg transition-colors shadow-sm"
+              >
+                Activate Database Auth
+              </button>
+            )}
+          </div>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 relative z-10">
           <button
